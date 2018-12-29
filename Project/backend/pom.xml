@@ -47,6 +47,13 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         
+        <!-- postgresql -->
+        <dependency>
+  			<groupId>org.postgresql</groupId>
+  			<artifactId>postgresql</artifactId>
+  			<version>9.4-1206-jdbc42</version>
+		</dependency>
+        
         <!-- mysql -->
         <dependency>
             <groupId>mysql</groupId>
