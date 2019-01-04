@@ -31,7 +31,7 @@ public class Topic {
 
 	private boolean isHighPriority;
 
-	public int getId() {
+	public Integer getId() {
 		return this.id;
 	}
 

@@ -49,6 +49,19 @@ public class FollowController {
 		return new ResponseEntity(HttpStatus.OK);
 	}
 	
+	@PostMapping("api/unfollowUser")
+	public ResponseEntity unfollowUser(HttpSession session, @RequestParam int followId) {
+		User u = (User)session.getAttribute("user");
+		if(u == null)
+			return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+		for(Follow f: followRepo.findAll()) {
+			if(f.getFollowee().getId().intValue() == followId){
+				followRepo.delete(f);
+			}
+		}
+		return new ResponseEntity(HttpStatus.OK);
+	}
+	
 	@GetMapping("api/getFollowers")
 	public List<FrontEndUser> getFollowers(HttpSession session){
 		User u = (User)session.getAttribute("user");

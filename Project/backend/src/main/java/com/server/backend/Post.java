@@ -35,7 +35,7 @@ public class Post {
 	@JoinColumn(name = "self_id")
 	private Post parent;
 
-	public int getId() {
+	public Integer getId() {
 		return this.id;
 	}
 
