@@ -26,6 +26,7 @@ import com.server.backend.TopicRepository;
 import com.server.backend.User;
 
 import FrontEndObjects.FrontEndPost;
+import FrontEndObjects.FrontEndUser;
 
 public class PostController {
 
@@ -63,7 +64,47 @@ public class PostController {
 
 		return ret;
 	}
-
+	
+	/**
+	 * Returns number of likes on post
+	 * @param session
+	 * @param postId
+	 * @return
+	 */
+	@GetMapping("/api/getLikesOnPost")
+	public @ResponseBody Integer getLikesOnPost(HttpSession session, @RequestParam int postId) {
+		Iterable<Like> likes = likeRepo.findAll();
+		int numLikes = 0;
+		
+		for(Like l : likes) {
+			if(l.getPost().getId().intValue() == postId) {
+				numLikes++;
+			}
+		}
+		
+		return new Integer(numLikes);
+	}
+	
+	/**
+	 * Returns a list of Users
+	 * @param session
+	 * @param postId
+	 * @return
+	 */
+	@GetMapping("/api/getSharesOnPost")
+	public @ResponseBody List<FrontEndUser> getSharesOnPost(HttpSession session, @RequestParam int postId) {
+		Iterable<Share> shares = shareRepo.findAll();
+		ArrayList<FrontEndUser> sharesOnPost = new ArrayList<>();
+		
+		for(Share s : shares) {
+			if(s.getPost().getId().intValue() == postId) {
+				sharesOnPost.add(new FrontEndUser(s.getUser()));
+			}
+		}
+		
+		return sharesOnPost;
+	}
+	
 	/**
 	 * Post a comment about an Topic
 	 *
@@ -97,6 +138,21 @@ public class PostController {
 		}
 
 		return new ResponseEntity(HttpStatus.OK);
+	}
+	
+	@PostMapping("/api/getReplies")
+	public @ResponseBody List<FrontEndPost> getReplies(HttpSession session, @RequestParam int postId){
+		ArrayList<FrontEndPost> replies = new ArrayList<>();
+		Post post = postRepo.findById(new Integer(postId)).get();
+		if(post == null)
+			return null;
+		
+		for(Post p : postRepo.findAll()) {
+			if(p.isDescendentOf(post))
+				replies.add(new FrontEndPost(p));
+		}
+		
+		return replies;
 	}
 
 	@PostMapping("/api/likePost")

@@ -86,4 +86,12 @@ public class Post {
 	public void setParent(Post e) {
 		this.parent = e;
 	}
+	
+	public boolean isDescendentOf(Post p) {
+		if(parent == null)
+			return false;
+		if(parent.id.equals(p.id))
+			return true;
+		return parent.isDescendentOf(p);
+	}
 }
