@@ -102,29 +102,49 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:src="@drawable/app_icon"
-                android:layout_marginLeft="22dp"
-                android:layout_marginRight="40dp"/>
+                android:layout_marginLeft="45dp"
+                android:layout_marginRight="5dp"/>
+            <TextView
+                android:id="@+id/likes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="9"/>
 
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:src="@drawable/app_icon"
-                android:layout_marginLeft="40dp"
-                android:layout_marginRight="40dp"/>
+                android:layout_marginLeft="45dp"
+                android:layout_marginRight="5dp"/>
+            <TextView
+                android:id="@+id/shares"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12"/>
 
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:src="@drawable/app_icon"
-                android:layout_marginLeft="40dp"
-                android:layout_marginRight="40dp"/>
+                android:layout_marginLeft="45dp"
+                android:layout_marginRight="5dp"/>
+            <TextView
+                android:id="@+id/yabbles"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="6"/>
 
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:src="@drawable/app_icon"
-                android:layout_marginLeft="40dp"
-                android:layout_marginRight="22dp"/>
+                android:layout_marginLeft="45dp"
+                android:layout_marginRight="5dp"/>
+            <TextView
+                android:id="@+id/replies"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1"/>
 
         </LinearLayout>
 
