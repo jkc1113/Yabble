@@ -1,5 +1,6 @@
 package com.server.backend.Controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -17,9 +18,8 @@ import com.server.backend.Follow;
 import com.server.backend.FollowRepository;
 import com.server.backend.User;
 import com.server.backend.UserRepository;
+import com.server.backend.FrontEndObjects.FrontEndUser;
 import com.server.backend.Services.FollowService;
-
-import FrontEndObjects.FrontEndUser;
 
 @Controller
 public class FollowController {
@@ -65,13 +65,25 @@ public class FollowController {
 	@GetMapping("api/getFollowers")
 	public List<FrontEndUser> getFollowers(HttpSession session){
 		User u = (User)session.getAttribute("user");
-		return followService.getFollowers(u);
+		if(u == null)
+			return null;
+		List<User> followers = followService.getFollowers(u.getId());
+		ArrayList<FrontEndUser> ret = new ArrayList<>();
+		for(User user: followers)
+			ret.add(new FrontEndUser(user));
+		return ret;
 	}
 	
 	@GetMapping("api/getFollowing")
 	public List<FrontEndUser> getFollowing(HttpSession session){
 		User u = (User)session.getAttribute("user");
-		return followService.getFollowing(u);
+		if(u == null)
+			return null;
+		List<User> followers = followService.getFollowing(u.getId());
+		ArrayList<FrontEndUser> ret = new ArrayList<>();
+		for(User user: followers)
+			ret.add(new FrontEndUser(user));
+		return ret;
 	}
 	
 }

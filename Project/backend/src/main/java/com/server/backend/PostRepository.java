@@ -1,9 +1,7 @@
 package com.server.backend;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.server.backend.Post;
-
-public interface PostRepository extends CrudRepository<Post, Integer> {
-
+public interface PostRepository extends JpaRepository<Post, Integer> {
+	
 }

@@ -10,15 +10,14 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="user_likes")
-public class Like {
+public class Yabble {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "userId")
+	@JoinColumn(name = "likedByUserId")
 	private User user;
 
 	@ManyToOne(fetch = FetchType.LAZY)

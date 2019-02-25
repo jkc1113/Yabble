@@ -1,7 +1,8 @@
-package FrontEndObjects;
+package com.server.backend.FrontEndObjects;
 
 import java.io.Serializable;
 
+import com.server.backend.Category;
 import com.server.backend.Topic;
 
 public class FrontEndTopic implements Serializable {
@@ -15,6 +16,7 @@ public class FrontEndTopic implements Serializable {
 	public boolean isHighPriority;
 	public String location;
 	public String name;
+	public Category category;
 
 	public FrontEndTopic() {
 	}
@@ -54,6 +56,12 @@ public class FrontEndTopic implements Serializable {
 			this.name = e.getName();
 		} catch (NullPointerException p) {
 			this.name = null;
+		}
+		
+		try {
+			this.category = e.getCategory();
+		} catch (NullPointerException p) {
+			this.category = null;
 		}
 	}
 }

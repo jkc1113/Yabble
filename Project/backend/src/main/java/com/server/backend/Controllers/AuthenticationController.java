@@ -10,12 +10,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.server.backend.User;
 import com.server.backend.UserRepository;
-
-import FrontEndObjects.LoginData;
+import com.server.backend.FrontEndObjects.FrontEndUser;
+import com.server.backend.FrontEndObjects.LoginData;
 
 /**
  * Handles authentication of users and session management
@@ -105,8 +106,18 @@ public class AuthenticationController {
 	 * @return User object for current user containing name, username, email, and password
 	 */
 	@GetMapping("/api/getCurrentUser")
-	public @ResponseBody User getCurrentUser(HttpSession session) {
-		return (User) (session.getAttribute("user"));
+	public @ResponseBody FrontEndUser getCurrentUser(HttpSession session) {
+		User u = (User) (session.getAttribute("user"));
+		if(u!=null)
+			return new FrontEndUser(u);
+		return null;
 	}
-
+	
+	@GetMapping("/api/getUserInfo")
+	public @ResponseBody FrontEndUser getUserInfo(HttpSession session, @RequestParam int userId) {
+		User u = users.findById(userId).get();
+		if( u != null )
+			return new FrontEndUser(u);
+		return null;
+	}
 }
