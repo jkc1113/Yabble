@@ -1,9 +1,9 @@
 package com.server.backend;
 
-import org.springframework.data.repository.CrudRepository;
+import java.util.List;
 
-import com.server.backend.Topic;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface TopicRepository extends CrudRepository<Topic, Integer> {
-
+public interface TopicRepository extends JpaRepository<Topic, Integer> {
+	List<Topic> findByCategoryOrderByTimestampDesc(Category category);
 }

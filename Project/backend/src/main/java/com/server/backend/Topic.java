@@ -23,8 +23,12 @@ public class Topic {
 	private User createdBy;
 
 	private String name;
+	
+	private Category category;
 
 	private String description;
+	
+	private Timestamp timestamp;
 
 	@Column(nullable = true)
 	private String location;
@@ -50,6 +54,14 @@ public class Topic {
 	public void setName(String n) {
 		this.name = n;
 	}
+	
+	public Category getCategory() {
+		return this.category;
+	}
+	
+	public void setCategory(Category c) {
+		this.category = c;
+	}
 
 	public String getDescription() {
 		return this.description;
@@ -57,6 +69,14 @@ public class Topic {
 
 	public void setDescription(String d) {
 		this.description = d;
+	}
+
+	public Timestamp getTimestamp() {
+		return this.timestamp;
+	}
+
+	public void setTimestamp(Timestamp t) {
+		this.timestamp = t;
 	}
 
 	public String getLocation() {

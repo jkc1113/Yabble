@@ -1,7 +1,9 @@
 package com.server.backend;
 
-import org.springframework.data.repository.CrudRepository;
+import java.util.List;
 
-public interface LikeRepository extends CrudRepository<Like, Integer>{
+import org.springframework.data.jpa.repository.JpaRepository;
 
+public interface LikeRepository extends JpaRepository<Like, Integer>{
+	List<Like> findByUserId(Integer userId);
 }

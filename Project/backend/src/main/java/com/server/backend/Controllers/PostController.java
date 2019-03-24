@@ -24,23 +24,36 @@ import com.server.backend.Share;
 import com.server.backend.ShareRepository;
 import com.server.backend.TopicRepository;
 import com.server.backend.User;
-
-import FrontEndObjects.FrontEndPost;
-import FrontEndObjects.FrontEndUser;
+import com.server.backend.Yabble;
+import com.server.backend.YabbleRepository;
+import com.server.backend.Comparators.ChronologicalPostComparator;
+import com.server.backend.FrontEndObjects.FrontEndPost;
+import com.server.backend.FrontEndObjects.FrontEndUser;
+import com.server.backend.Services.FollowService;
+import com.server.backend.Services.PostService;
 
 public class PostController {
 
 	@Autowired
+	FollowService followService;
+
+	@Autowired
 	PostRepository postRepo;
+
+	@Autowired
+	PostService postService;
 
 	@Autowired
 	TopicRepository topicRepo;
 
 	@Autowired
 	LikeRepository likeRepo;
-	
+
 	@Autowired
 	ShareRepository shareRepo;
+
+	@Autowired
+	YabbleRepository yabbleRepo;
 
 	/**
 	 * Gets comments for an Topic
@@ -49,24 +62,88 @@ public class PostController {
 	 * @param TopicId ID of Topic to get comments for
 	 * @return List of comments for Topic. No particular ordering.
 	 */
-	@GetMapping("/api/getPosts")
-	public @ResponseBody List<FrontEndPost> getPosts(HttpSession session, @RequestParam int TopicId) {
-		// TODO: check user permissions with role controller here
-
+	@GetMapping("/api/getPostsOnTopic")
+	public @ResponseBody List<FrontEndPost> getPostsOnTopic(HttpSession session, @RequestParam int topicId) {
 		List<FrontEndPost> ret = new ArrayList<>();
-
-		Iterable<Post> posts = this.postRepo.findAll();
-		for (Post e : posts) {
-			if (e.getTopic().getId().intValue() == TopicId) {
-				ret.add(new FrontEndPost(e));
-			}
+		List<Post> posts = postService.getPostsOnTopic(topicId);
+		posts.sort(new ChronologicalPostComparator());
+		for (Post p : posts) {
+			ret.add(new FrontEndPost(p));
 		}
 
 		return ret;
 	}
+
+	/**
+	 * Get specific post.
+	 * 
+	 * @param session
+	 * @param postId
+	 * @return
+	 */
+	@GetMapping("/api/getPost")
+	public @ResponseBody FrontEndPost getPost(HttpSession session, @RequestParam int postId) {
+		Post post = postRepo.findById(new Integer(postId)).get();
+		return new FrontEndPost(post);
+	}
+
+	/**
+	 * Get all posts made by user.
+	 * 
+	 * @param session
+	 * @param userId
+	 * @return
+	 */
+	@GetMapping("/api/getPostsByUser")
+	public @ResponseBody List<FrontEndPost> getPostsByUser(HttpSession session, @RequestParam int userId) {
+		List<FrontEndPost> ret = new ArrayList<>();
+
+		List<Post> posts = postService.getPostsByUser(userId);
+		posts.sort(new ChronologicalPostComparator());
+		for (Post p : posts) {
+			ret.add(new FrontEndPost(p));
+		}
+
+		return ret;
+	}
+
+	/**
+	 * Gets posts for following feed for user
+	 * 
+	 * @param session
+	 * @return
+	 */
+	@GetMapping("/api/getPostsByFollowing")
+	public @ResponseBody List<FrontEndPost> getPostsByFollowing(HttpSession session) {
+		User u = (User) session.getAttribute("user");
+		if (u == null)
+			return null;
+		List<Post> posts = postService.getPostsByUser(u.getId().intValue());
+		posts.sort(new ChronologicalPostComparator());
+		List<FrontEndPost> ret = new ArrayList<>();
+		for (Post p : posts) {
+			ret.add(new FrontEndPost(p));
+		}
+		return ret;
+	}
 	
+	@GetMapping("/api/getLikedPosts")
+	public @ResponseBody List<FrontEndPost> getLikedPosts(HttpSession session){
+		User u = (User) session.getAttribute("user");
+		if(u == null)
+			return null;
+		List<Post> posts = postService.getLikedPosts(u.getId());
+		posts.sort(new ChronologicalPostComparator());
+		List<FrontEndPost> ret = new ArrayList<>();
+		for(Post p: posts) {
+			ret.add(new FrontEndPost(p));
+		}
+		return ret;
+	}
+
 	/**
 	 * Returns number of likes on post
+	 * 
 	 * @param session
 	 * @param postId
 	 * @return
@@ -75,18 +152,19 @@ public class PostController {
 	public @ResponseBody Integer getLikesOnPost(HttpSession session, @RequestParam int postId) {
 		Iterable<Like> likes = likeRepo.findAll();
 		int numLikes = 0;
-		
-		for(Like l : likes) {
-			if(l.getPost().getId().intValue() == postId) {
+
+		for (Like l : likes) {
+			if (l.getPost().getId().intValue() == postId) {
 				numLikes++;
 			}
 		}
-		
+
 		return new Integer(numLikes);
 	}
-	
+
 	/**
 	 * Returns a list of Users
+	 * 
 	 * @param session
 	 * @param postId
 	 * @return
@@ -95,16 +173,37 @@ public class PostController {
 	public @ResponseBody List<FrontEndUser> getSharesOnPost(HttpSession session, @RequestParam int postId) {
 		Iterable<Share> shares = shareRepo.findAll();
 		ArrayList<FrontEndUser> sharesOnPost = new ArrayList<>();
-		
-		for(Share s : shares) {
-			if(s.getPost().getId().intValue() == postId) {
+
+		for (Share s : shares) {
+			if (s.getPost().getId().intValue() == postId) {
 				sharesOnPost.add(new FrontEndUser(s.getUser()));
 			}
 		}
-		
+
 		return sharesOnPost;
 	}
-	
+
+	/**
+	 * Returns number of Yabbles on post
+	 * 
+	 * @param session
+	 * @param postId
+	 * @return
+	 */
+	@GetMapping("/api/getYabblesOnPost")
+	public @ResponseBody Integer getYabblesOnPost(HttpSession session, @RequestParam int postId) {
+		Iterable<Yabble> yabbles = yabbleRepo.findAll();
+		int numYabbles = 0;
+
+		for (Yabble y : yabbles) {
+			if (y.getPost().getId().intValue() == postId) {
+				numYabbles++;
+			}
+		}
+
+		return new Integer(numYabbles);
+	}
+
 	/**
 	 * Post a comment about an Topic
 	 *
@@ -139,26 +238,26 @@ public class PostController {
 
 		return new ResponseEntity(HttpStatus.OK);
 	}
-	
+
 	@PostMapping("/api/getReplies")
-	public @ResponseBody List<FrontEndPost> getReplies(HttpSession session, @RequestParam int postId){
+	public @ResponseBody List<FrontEndPost> getReplies(HttpSession session, @RequestParam int postId) {
 		ArrayList<FrontEndPost> replies = new ArrayList<>();
 		Post post = postRepo.findById(new Integer(postId)).get();
-		if(post == null)
+		if (post == null)
 			return null;
-		
-		for(Post p : postRepo.findAll()) {
-			if(p.isDescendentOf(post))
+
+		for (Post p : postRepo.findAll()) {
+			if (p.isDescendentOf(post))
 				replies.add(new FrontEndPost(p));
 		}
-		
+
 		return replies;
 	}
 
 	@PostMapping("/api/likePost")
 	public ResponseEntity likePost(HttpSession session, @RequestParam int postId) {
 		User u = (User) session.getAttribute("user");
-		//TODO only like if not already liked
+		// TODO only like if not already liked
 		if (u == null)
 			return new ResponseEntity(HttpStatus.UNAUTHORIZED);
 		try {
@@ -173,24 +272,56 @@ public class PostController {
 
 		return new ResponseEntity(HttpStatus.OK);
 	}
-	
+
 	@PostMapping("/api/unlikePost")
 	public ResponseEntity unlikePost(HttpSession session, @RequestParam int postId) {
-		User u = (User)session.getAttribute("user");
-		if(u == null)
+		User u = (User) session.getAttribute("user");
+		if (u == null)
 			return new ResponseEntity(HttpStatus.UNAUTHORIZED);
-		for(Like l: likeRepo.findAll()) {
-			if(l.getPost().getId().intValue() == postId){
+		for (Like l : likeRepo.findAll()) {
+			if (l.getPost().getId().intValue() == postId) {
 				likeRepo.delete(l);
 			}
 		}
 		return new ResponseEntity(HttpStatus.OK);
 	}
-	
+
+	@PostMapping("/api/likeYabble")
+	public ResponseEntity likeYabble(HttpSession session, @RequestParam int postId) {
+		User u = (User) session.getAttribute("user");
+		// TODO only like if not already liked
+		if (u == null)
+			return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+		try {
+			Yabble yabble = new Yabble();
+
+			yabble.setPost(postRepo.findById(new Integer(postId)).get());
+			yabble.setUser(u);
+			yabbleRepo.save(yabble);
+		} catch (NoSuchElementException e) {
+			return new ResponseEntity(HttpStatus.NOT_FOUND);
+		}
+
+		return new ResponseEntity(HttpStatus.OK);
+	}
+
+	@PostMapping("/api/unlikeYabble")
+	public ResponseEntity unlikeYabble(HttpSession session, @RequestParam int postId) {
+		User u = (User) session.getAttribute("user");
+		if (u == null)
+			return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+		for (Yabble y : yabbleRepo.findAll()) {
+			if (y.getPost().getId().intValue() == postId) {
+				yabbleRepo.delete(y);
+			}
+		}
+		return new ResponseEntity(HttpStatus.OK);
+	}
+
 	@PostMapping("/api/sharePost")
 	public ResponseEntity sharePost(HttpSession session, @RequestParam int postId) {
 		User u = (User) session.getAttribute("user");
-		//TODO only share if not already shared
+		// TODO only share if not already shared
 		if (u == null)
 			return new ResponseEntity(HttpStatus.UNAUTHORIZED);
 		try {
@@ -205,14 +336,14 @@ public class PostController {
 
 		return new ResponseEntity(HttpStatus.OK);
 	}
-	
+
 	@PostMapping("/api/unsharePost")
 	public ResponseEntity unsharePost(HttpSession session, @RequestParam int postId) {
-		User u = (User)session.getAttribute("user");
-		if(u == null)
+		User u = (User) session.getAttribute("user");
+		if (u == null)
 			return new ResponseEntity(HttpStatus.UNAUTHORIZED);
-		for(Share s: shareRepo.findAll()) {
-			if(s.getPost().getId().intValue() == postId){
+		for (Share s : shareRepo.findAll()) {
+			if (s.getPost().getId().intValue() == postId) {
 				shareRepo.delete(s);
 			}
 		}

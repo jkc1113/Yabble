@@ -1,7 +1,16 @@
 package com.server.backend;
 
-import org.springframework.data.repository.CrudRepository;
+import java.util.List;
 
-public interface FollowRepository extends CrudRepository<Follow, Integer>{
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
+public interface FollowRepository extends JpaRepository<Follow, Integer>{
+
+	@Query(value="SELECT * FROM FOLLOW WHERE FOLLOWEE_ID = ?0", nativeQuery = true)
+	List<Follow> findFollowers(Integer userId);
+	
+	@Query(value="SELECT * FROM FOLLOW WHERE FOLLOWER_ID = ?0", nativeQuery = true)
+	List<Follow> findFollowing(Integer userId);
+	
 }

@@ -1,4 +1,4 @@
-package FrontEndObjects;
+package com.server.backend.FrontEndObjects;
 
 import java.io.Serializable;
 

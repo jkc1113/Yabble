@@ -1,8 +1,6 @@
 package com.server.backend.Controllers;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -17,15 +15,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.server.backend.Post;
+import com.server.backend.Category;
 import com.server.backend.PostRepository;
 import com.server.backend.Topic;
 import com.server.backend.TopicRepository;
 import com.server.backend.User;
 import com.server.backend.UserRepository;
-
-import FrontEndObjects.FrontEndPost;
-import FrontEndObjects.FrontEndTopic;
+import com.server.backend.FrontEndObjects.FrontEndTopic;
 
 /**
  * Handles Topic related requests
@@ -87,9 +83,8 @@ public class TopicController {
 	 * @return Topics in the requested group.
 	 */
 	@GetMapping("/api/getTopics")
-	public @ResponseBody List<FrontEndTopic> getTopics(HttpSession session) {
-
-		Iterable<Topic> topics = topicRepository.findAll();
+	public @ResponseBody List<FrontEndTopic> getTopics(HttpSession session, Category c) {
+		Iterable<Topic> topics = topicRepository.findByCategoryOrderByTimestampDesc(c);
 		ArrayList<FrontEndTopic> userTopics = new ArrayList<>();
 		for (Topic e : topics) {
 			userTopics.add(new FrontEndTopic(e));
